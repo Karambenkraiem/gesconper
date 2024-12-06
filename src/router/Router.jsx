@@ -2,8 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import About from '../pages/About';
-import Contact from '../pages/Contact';
 import NotFound from '../pages/NotFound';
+import Profile from '../pages/Profile';
+import MesConges from '../pages/MesConges';
 
 const AppRouter = () => {
   return (
@@ -11,7 +12,8 @@ const AppRouter = () => {
       <Routes>
         /* <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} /> */
+        <Route path="/profile" element={<Profile />} /> */
+        <Route path="/mesconges" element={<MesConges />} /> */
         <Route path="*" element={<NotFound />} /> {/* Page 404 */}
       </Routes>
     </Router>
