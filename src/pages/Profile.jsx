@@ -1,17 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, Box, Button, Container, Grid, Paper, Typography, AppBar, Toolbar } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-// Sample user data
-const user = {
-  id: 1,
-  email: 'user@example.com',
-  name: 'John Doe',
-  posts: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eget ligula ante.',
-  Conge: ['2024-12-05', '2024-12-10', '2024-12-20'],
-};
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Profile = () => {
+  const [user, setUser] = useState(null); // State to hold user data
+  const navigate = useNavigate(); // React Router's navigation function
+
+  // Theme setup
   const theme = createTheme({
     palette: {
       mode: 'light', // Can switch to 'dark' mode if preferred
@@ -23,6 +20,31 @@ const Profile = () => {
       },
     },
   });
+
+  // Fetch user data from API
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/users/1'); // Replace with your API endpoint
+        setUser(response.data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  // Render a loading state if data is not yet loaded
+  if (!user) {
+    return (
+      <ThemeProvider theme={theme}>
+        <Typography variant="h6" align="center" sx={{ marginTop: 4 }}>
+          Loading profile...
+        </Typography>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -75,6 +97,13 @@ const Profile = () => {
                   </Grid>
                 ))}
               </Grid>
+
+              {/* Navigate to "Mes Congés" */}
+              <Box textAlign="center" sx={{ marginTop: 3 }}>
+                <Button variant="contained" color="primary" onClick={() => navigate('/mesconges')}>
+                  Mes Congés
+                </Button>
+              </Box>
             </Paper>
           </Container>
         </Box>
