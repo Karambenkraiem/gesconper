@@ -60,7 +60,6 @@ const UserDataGridComponent = () => {
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          checkboxSelection
           getRowId={(row) => row.userId} // Alternative pour définir l'id unique si pas modifié dans les données
         />
       )}

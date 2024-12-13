@@ -2,7 +2,7 @@ import React from 'react';
 import TopBar from '../components/TopBar';
 import UserDataGridComponent from '../components/UserDataGridComponent';
 
-const Home = () => {
+const UserPage = () => {
   return (
     <>
       <TopBar />
@@ -13,4 +13,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default UserPage;
