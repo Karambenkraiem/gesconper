@@ -1,53 +1,58 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Button, Modal, TextField, Box, CircularProgress } from '@mui/material';
+import { Button, Modal, TextField, Box, CircularProgress, Typography } from '@mui/material';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const CongePage = () => {
   const { userId } = useParams(); // Get the userId from the URL
   const [conges, setConges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const [userName, setUserName] = useState(''); // New state to hold the user's name
   const [newConge, setNewConge] = useState({
-    dateDebut: "2024-12-15",
     nbreJour: 1,
+    dateDebut: "2024-12-15",
     adressConge: "123 Holiday Lane",
-    
   });
 
-  // Function to fetch the user's congés
+  const navigate = useNavigate(); // Initialize navigation function
+
+  // Fetch the user's congés and user data
   useEffect(() => {
     axios
       .get(`http://localhost:3002/user/${userId}/conges`)
       .then((response) => {
-        setConges(response.data);
+        console.log(response.data); // Log response data for debugging
+
+        // Set userName from the first conge's User object, assuming user is consistent across all records
+        if (response.data.length > 0 && response.data[0].User) {
+          setUserName(response.data[0].User.name);
+        }
+
+        const dataWithId = response.data.map((conge, index) => ({
+          ...conge,
+          id: conge.id || index, 
+        }));
+        setConges(dataWithId);
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Error fetching congés:', error);
+        console.error("There was an error fetching the congé data!", error);
         setLoading(false);
       });
   }, [userId]);
 
-  // Function to handle opening the modal
-  const handleOpenModal = () => {
-    setOpenModal(true);
-  };
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => setOpenModal(false);
 
-  // Function to handle closing the modal
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
-
-  // Function to handle submitting the new congé
   const handleSubmitConge = () => {
-    const congeData = { ...newConge, userUserId: parseInt(userId, 10) }; // Include userId
+    const congeData = { ...newConge, userUserId: parseInt(userId, 10) };
 
     axios
       .post(`http://localhost:3002/conges`, congeData)
       .then((response) => {
-        setConges([...conges, response.data]); // Add the new conge to the list
+        setConges([...conges, response.data]);
         handleCloseModal();
       })
       .catch((error) => {
@@ -55,12 +60,12 @@ const CongePage = () => {
       });
   };
 
-  // Columns for the DataGrid
   const columns = [
     { field: 'id', headerName: 'ID', width: 150 },
     { field: 'dateCreated', headerName: 'Date Création', width: 200 },
     { field: 'dateDebut', headerName: 'Date Début', width: 200 },
     { field: 'nbreJour', headerName: 'Nombre de Jours', width: 200 },
+    { field: 'userName', headerName: 'Name', width: 200 },
     { field: 'adressConge', headerName: 'Adresse Congé', width: 250 },
     {
       field: 'etatConge',
@@ -71,31 +76,59 @@ const CongePage = () => {
         let color;
         if (etat === 'Accepté') color = 'green';
         if (etat === 'Refusé') color = 'red';
-        if (etat === 'En Attente') color = 'yellow';
+        if (etat === 'En Attente') color = 'orange';
 
-        return <div style={{ color }}>{etat}</div>;
+        return <Typography style={{ color }}>{etat}</Typography>;
       },
     },
   ];
 
   return (
-    <div style={{ height: 400, width: '100%' }}>
-      <h1>Congés de l'utilisateur {userId}</h1>
+    <Box sx={{ padding: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Congés de {userName}
+      </Typography>
       {loading ? (
-        <CircularProgress />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+          <CircularProgress />
+        </Box>
       ) : (
         <>
-          <DataGrid
-            rows={conges}
-            columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-          />
-          <Button variant="contained" color="primary" onClick={handleOpenModal}>
-            Faire une demande de congé
-          </Button>
+          <Box sx={{ marginBottom: 3 }}>
+            <DataGrid
+              rows={conges}
+              columns={columns}
+              pageSize={5}
+              rowsPerPageOptions={[5]}
+              autoHeight
+            />
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => navigate(`/profile/${userId}`)}
+              >
+                Retour à la Page Utilisateur
+              </Button>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => navigate('/allconge')}
+              >
+                Retour à la Liste de Tous les Congés
+              </Button>
+            </Box>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleOpenModal}
+            >
+              Faire une demande de congé
+            </Button>
+          </Box>
 
-          {/* Modal for requesting a conge */}
           <Modal
             open={openModal}
             onClose={handleCloseModal}
@@ -112,9 +145,12 @@ const CongePage = () => {
                 bgcolor: 'background.paper',
                 boxShadow: 24,
                 p: 4,
+                borderRadius: 2,
               }}
             >
-              <h2 id="modal-title">Demande de Congé</h2>
+              <Typography id="modal-title" variant="h6" gutterBottom>
+                Demande de Congé
+              </Typography>
               <TextField
                 label="Date de début"
                 type="date"
@@ -145,14 +181,20 @@ const CongePage = () => {
                 }
                 margin="normal"
               />
-              <Button variant="contained" color="primary" onClick={handleSubmitConge}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmitConge}
+                sx={{ marginTop: 2 }}
+                fullWidth
+              >
                 Soumettre
               </Button>
             </Box>
           </Modal>
         </>
       )}
-    </div>
+    </Box>
   );
 };
 

@@ -1,69 +1,118 @@
 import React, { useEffect, useState } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import { Button, CircularProgress } from '@mui/material';
+import { Sheet, Typography, Button, CircularProgress, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/joy';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const UserDataGridComponent = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Appel API pour récupérer les utilisateurs
-    axios.get("http://localhost:3002/user")
-      .then(response => {
+    axios
+      .get('http://localhost:3002/user')
+      .then((response) => {
         setUsers(response.data);
         setLoading(false);
       })
-      .catch(error => {
-        console.error('Il y a eu une erreur:', error);
+      .catch((error) => {
+        console.error('Erreur:', error);
+        setError('Impossible de charger les données');
         setLoading(false);
       });
   }, []);
 
-  // Colonnes pour le DataGrid
-  const columns = [
-    { field: 'userId', headerName: 'ID Utilisateur', width: 150 },
-    { field: 'email', headerName: 'Email', width: 250 },
-    { field: 'name', headerName: 'Nom', width: 200 },
-    { field: 'posts', headerName: 'Posts', width: 200 },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 180,
-      renderCell: (params) => (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleCongeClick(params.row.userId)}
-        >
-          Voir Congés
-        </Button>
-      ),
-    },
-  ];
-
-  // Fonction pour naviguer vers la page des congés
   const handleCongeClick = (userId) => {
     navigate(`/conges/${userId}`);
   };
 
-  return (
-    <div style={{ height: 400, width: '100%' }}>
-      <h1>Liste des Utilisateurs</h1>
-      {loading ? (
+  if (loading) {
+    return (
+      <Sheet
+        variant="soft"
+        color="neutral"
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 300,
+        }}
+      >
         <CircularProgress />
-      ) : (
-        <DataGrid
-          rows={users.map(user => ({ ...user, id: user.userId }))} // Ajouter l'id unique ici
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          getRowId={(row) => row.userId} // Alternative pour définir l'id unique si pas modifié dans les données
-        />
-      )}
-    </div>
+      </Sheet>
+    );
+  }
+
+  if (error) {
+    return (
+      <Sheet
+        variant="soft"
+        color="danger"
+        sx={{
+          padding: 2,
+          textAlign: 'center',
+        }}
+      >
+        <Typography level="h6" color="danger">
+          {error}
+        </Typography>
+      </Sheet>
+    );
+  }
+
+  return (
+    <Sheet
+      variant="outlined"
+      sx={{
+        margin: 2,
+        padding: 2,
+        borderRadius: 'md',
+        boxShadow: 'sm',
+      }}
+    >
+      <Typography level="h4" component="h1" sx={{ marginBottom: 2 }}>
+        Liste des Utilisateurs
+      </Typography>
+      <Table
+        aria-label="Liste des utilisateurs"
+        sx={{
+          borderRadius: 'sm',
+          overflow: 'hidden',
+          boxShadow: 'sm',
+        }}
+      >
+        <TableHead>
+          <TableRow>
+            <TableCell>ID Utilisateur</TableCell>
+            <TableCell>Email</TableCell>
+            <TableCell>Nom</TableCell>
+            <TableCell>Posts</TableCell>
+            <TableCell>Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {users.map((user) => (
+            <TableRow key={user.userId}>
+              <TableCell>{user.userId}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>{user.name}</TableCell>
+              <TableCell>{user.posts}</TableCell>
+              <TableCell>
+                <Button
+                  variant="solid"
+                  color="primary"
+                  size="sm"
+                  onClick={() => handleCongeClick(user.userId)}
+                >
+                  Voir Congés
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Sheet>
   );
 };
 
