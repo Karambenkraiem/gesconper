@@ -4,7 +4,7 @@ import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
 

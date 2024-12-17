@@ -95,14 +95,11 @@ const Profile = () => {
   return (
     <>
       <TopBar />
-      
 
       <ThemeProvider theme={theme}>
-        
         <Box
           sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
         >
-          
           {/* Main Content */}
           <Box
             sx={{
@@ -112,21 +109,21 @@ const Profile = () => {
             }}
           >
             <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "flex-start",
-                          marginBottom: 2,
-                        }}
-                      >
-                        {/* Back Button */}
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          onClick={() => navigate(-1)}
-                        >
-                          Retour
-                        </Button>
-                      </Box>
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                marginBottom: 2,
+              }}
+            >
+              {/* Back Button */}
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => navigate(-1)}
+              >
+                Retour
+              </Button>
+            </Box>
             <Container maxWidth="md">
               <Paper
                 sx={{
