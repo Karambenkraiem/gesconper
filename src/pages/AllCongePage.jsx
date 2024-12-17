@@ -12,6 +12,7 @@ import {
   Stack,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import TopBar from "../components/TopBar";
 
 const AllCongePage = () => {
   const [congeData, setCongeData] = useState([]);
@@ -53,22 +54,8 @@ const AllCongePage = () => {
 
   return (
     <>
-      {/* TopBar Component */}
-      <AppBar position="static" color="primary">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Tous les congés
-          </Typography>
-        </Toolbar>
-      </AppBar>
-
-      {/* Main Content */}
-      <Container sx={{ mt: 4 }}>
-        <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-          <Button variant="outlined" onClick={handleBackClick}>
-            Retour
-          </Button>
-        </Stack>
+      <TopBar/>
+       
         {loading ? (
           <Box display="flex" justifyContent="center" alignItems="center" height={300}>
             <CircularProgress />
@@ -84,9 +71,25 @@ const AllCongePage = () => {
               padding: 2,
             }}
           >
-            <Typography variant="h5" gutterBottom>
+            <Typography variant="h4" gutterBottom>
               Liste des congés
             </Typography>
+            <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          marginBottom: 2,
+                        }}
+                      >
+                        {/* Back Button */}
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          onClick={() => navigate(-1)}
+                        >
+                          Retour
+                        </Button>
+                      </Box>
             <DataGrid
               rows={congeData}
               columns={columns}
@@ -101,7 +104,6 @@ const AllCongePage = () => {
             />
           </Box>
         )}
-      </Container>
     </>
   );
 };
