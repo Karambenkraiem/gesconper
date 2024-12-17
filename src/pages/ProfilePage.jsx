@@ -6,13 +6,17 @@ import {
   Container,
   Paper,
   Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
   Grid,
-  CircularProgress,
-  ThemeProvider,
-  AppBar,
-  Toolbar,
+  Card,
+  CardContent,
+  CardActions,
 } from "@mui/material";
-import { createTheme } from "@mui/material/styles";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import TopBar from "../components/TopBar";
@@ -20,63 +24,105 @@ import TopBar from "../components/TopBar";
 const Profile = () => {
   const { userId } = useParams(); // Get userId from route params
   const [user, setUser] = useState(null); // State to hold user data
-  const [conges, setConges] = useState([]); // State to hold leave records
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
-  const navigate = useNavigate(); // React Router's navigation function
+  const [openLeaveDialog, setOpenLeaveDialog] = useState(false); // State for leave request dialog
+  const [conges, setConges] = useState([]);
+  const [newConge, setNewConge] = useState({
+    nbreJour: 1,
+    dateDebut: "",
+    adressConge: "123 Holiday Lane",
+    etatConge: "En Attente",
+  });
 
-  // Theme setup
+  const [dateError, setDateError] = useState(""); // To handle date error message
+
+  const navigate = useNavigate();
+
   const theme = createTheme({
     palette: {
       mode: "light",
-      primary: {
-        main: "#1976d2", // Primary color (blue)
-      },
-      secondary: {
-        main: "#dc004e", // Secondary color (pink)
-      },
+      primary: { main: "#1976d2" },
+      secondary: { main: "#dc004e" },
     },
   });
 
-  // Fetch user data and congés from API
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Fetch user data
-        const userResponse = await axios.get(
+        const response = await axios.get(
           `http://localhost:3002/user/${userId}`
         );
-        setUser(userResponse.data);
-
-        // Fetch user's congés
-        const congeResponse = await axios.get(
-          `http://localhost:3002/user/${userId}/conges`
-        );
-        setConges(congeResponse.data);
-
-        setLoading(false); // Set loading to false after fetching data
+        setUser(response.data);
+        setLoading(false);
       } catch (err) {
-        console.error("Error fetching user data or congés:", err);
-        setError("Unable to fetch profile or leave data.");
-        setLoading(false); // Set loading to false on error
+        console.error("Error fetching user data:", err);
+        setError("Unable to fetch profile data.");
+        setLoading(false);
       }
     };
 
     fetchUserData();
   }, [userId]);
 
-  // Render a loading state if data is not yet loaded
+  // Handle opening the leave request dialog
+  const handleOpenLeaveDialog = () => {
+    setOpenLeaveDialog(true);
+  };
+
+  // Handle closing the leave request dialog
+  const handleCloseLeaveDialog = () => {
+    setOpenLeaveDialog(false);
+    setDateError(""); // Clear error on close
+  };
+
+  // Handle changes in the leave request form
+  const handleLeaveInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewConge((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  // Submit the leave request
+  const handleSubmitConge = () => {
+    // Validation for date of leave (cannot be in the past or today)
+    const today = new Date();
+    const selectedDate = new Date(newConge.dateDebut);
+    const tomorrow = new Date(today.setDate(today.getDate() + 1));
+
+    if (selectedDate < tomorrow) {
+      setDateError("La date de début doit être au moins demain.");
+      return;
+    }
+
+    const congeData = { ...newConge, userUserId: parseInt(userId, 10) };
+
+    axios
+      .post(`http://localhost:3002/conges`, congeData)
+      .then((response) => {
+        setConges([...conges, response.data]);
+        handleCloseLeaveDialog();
+        alert(
+          "Congé demandé avec succès, Attente d'approbation de Chef exploitation"
+        );
+      })
+      .catch((error) => {
+        console.error("Error submitting conge:", error);
+      });
+  };
+
   if (loading) {
     return (
       <ThemeProvider theme={theme}>
         <Typography variant="h6" align="center" sx={{ marginTop: 4 }}>
-          Chargement en cours Steg Energie pour toujours...
+          Chargement en cours...
         </Typography>
       </ThemeProvider>
     );
   }
 
-  // Render error state if something went wrong
   if (error) {
     return (
       <ThemeProvider theme={theme}>
@@ -91,6 +137,12 @@ const Profile = () => {
       </ThemeProvider>
     );
   }
+  const handleCongeClick = (params) => {
+    navigate(`/conges/${userId}`);
+  };
+
+  const minDate = new Date();
+  minDate.setDate(minDate.getDate() + 1); // Minimum date is tomorrow
 
   return (
     <>
@@ -100,104 +152,126 @@ const Profile = () => {
         <Box
           sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
         >
-          {/* Main Content */}
           <Box
             sx={{
               flex: 1,
               backgroundColor: "rgba(0,0,0,0.05)",
-              padding: "20px",
+              padding: "40px 20px",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-start",
-                marginBottom: 2,
-              }}
-            >
-              {/* Back Button */}
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => navigate(-1)}
-              >
-                Retour
-              </Button>
-            </Box>
             <Container maxWidth="md">
-              <Paper
+              <Card
                 sx={{
-                  padding: 4,
                   borderRadius: 3,
                   boxShadow: 3,
                   backgroundColor: "#fff",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  padding: 4,
                 }}
               >
-                {/* Profile Header */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  <Avatar
-                    sx={{ width: 120, height: 120, marginBottom: 2 }}
-                    alt="Profile Image"
-                    src="/default-avatar.png"
-                  />
-                  <Typography
-                    variant="h5"
-                    sx={{ fontWeight: "bold", marginBottom: 1 }}
-                  >
-                    {user.name}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    sx={{ color: "gray", marginBottom: 2 }}
-                  >
-                    {user.email}
-                  </Typography>
-                  <Button variant="outlined" sx={{ marginBottom: 2 }}>
-                    Modifier profil
-                  </Button>
-                </Box>
-
-                {/* User Info */}
+                <Avatar
+                  sx={{ width: 120, height: 120, marginBottom: 2 }}
+                  alt="Profile Image"
+                />
                 <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", marginBottom: 2 }}
+                  variant="h4"
+                  sx={{ fontWeight: "bold", marginBottom: 1 }}
                 >
-                  Poste
-                </Typography>
-                <Typography variant="body1" sx={{ marginBottom: 2 }}>
-                  {user.posts}
+                  {user.name}
                 </Typography>
                 <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", marginBottom: 2 }}
+                  variant="body1"
+                  sx={{ color: "gray", marginBottom: 3 }}
                 >
-                  Solde congé
+                  {user.email}
                 </Typography>
-                <Typography variant="body1" sx={{ marginBottom: 2 }}>
-                  {user.soldeConge}
-                </Typography>
-
-                {/* Navigate to "Mes Congés" */}
-                <Box textAlign="center" sx={{ marginTop: 3 }}>
+                <CardContent sx={{ textAlign: "center", marginBottom: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                    Poste: {user.posts}
+                  </Typography>
+                  <Typography variant="body1" sx={{ marginBottom: 2 }}>
+                    Solde congé: {user.soldeConge} jours
+                  </Typography>
+                </CardContent>
+                <CardActions sx={{ width: "100%", justifyContent: "center" }}>
                   <Button
                     variant="contained"
                     color="primary"
-                    onClick={() => navigate(`/conges/${userId}`)}
+                    onClick={handleOpenLeaveDialog}
+                    sx={{ width: "50%" }}
                   >
-                    Liste des congés
+                    Demander un Congé
                   </Button>
-                </Box>
-              </Paper>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={(params) => handleCongeClick(params?.userId)}
+                    sx={{ width: "50%" }}
+                  >
+                    Liste de mes congés{" "}
+                  </Button>
+                </CardActions>
+              </Card>
             </Container>
           </Box>
         </Box>
       </ThemeProvider>
+
+      {/* Leave Request Dialog */}
+      <Dialog open={openLeaveDialog} onClose={handleCloseLeaveDialog}>
+        <DialogTitle>Demander un Congé</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Date de début"
+            type="date"
+            name="dateDebut"
+            value={newConge.dateDebut}
+            onChange={handleLeaveInputChange}
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+            inputProps={{
+              min: minDate.toISOString().split("T")[0], // Disable past dates and today
+            }}
+            error={!!dateError}
+            helperText={dateError}
+          />
+          <TextField
+            label="Nombre de Jours"
+            type="number"
+            fullWidth
+            value={newConge.nbreJour}
+            onChange={(e) =>
+              setNewConge({
+                ...newConge,
+                nbreJour: parseInt(e.target.value, 10) || 0,
+              })
+            }
+            margin="normal"
+            inputProps={{ min: 1 }}
+          />
+          <TextField
+            label="Adresse pendant le congé (optionnel)"
+            name="adressConge"
+            value={newConge.adressConge}
+            onChange={handleLeaveInputChange}
+            fullWidth
+            margin="normal"
+            multiline
+            rows={2}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseLeaveDialog} color="secondary">
+            Annuler
+          </Button>
+          <Button onClick={handleSubmitConge} color="primary">
+            Soumettre
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

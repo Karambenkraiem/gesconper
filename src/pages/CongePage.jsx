@@ -20,7 +20,20 @@ const CongePage = () => {
   });
 
   const navigate = useNavigate(); // Initialize navigation function
-
+  const formatDateTime = (isoString) => {
+    const date = new Date(isoString);
+  
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Mois commence à 0
+    const year = date.getFullYear();
+  
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+  
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+  };
+  
   // Fetch congés data
   useEffect(() => {
     axios
@@ -33,6 +46,8 @@ const CongePage = () => {
         const dataWithId = response.data.map((conge, index) => ({
           ...conge,
           id: conge.id || index,
+          dateCreated: formatDateTime(conge.dateCreated), // Formatage ici
+        dateDebut: formatDateTime(conge.dateDebut),     // Formatage ici
         }));
         setConges(dataWithId);
         setLoading(false);
@@ -64,7 +79,8 @@ const CongePage = () => {
   const handleCloseModal = () => setOpenModal(false);
 
   const handleSubmitConge = () => {
-    const congeData = { ...newConge, userUserId: parseInt(userId, 10) };
+    const congeData = { ...newConge,
+       userUserId: parseInt(userId, 10) };
 
     axios
       .post(`http://localhost:3002/conges`, congeData)
@@ -78,19 +94,20 @@ const CongePage = () => {
   };
 
   const columns = [
-    {
-      field: "id",
-      headerName: "ID",
-      width: 150,
-      headerAlign: "center",
-      align: "center",
-    },
+    // {
+    //   field: "id",
+    //   headerName: "ID",
+    //   width: 150,
+    //   headerAlign: "center",
+    //   align: "center",
+    // },
     {
       field: "dateCreated",
       headerName: "Date Création",
       width: 200,
       align: "center",
       headerAlign: "center",
+      sortDirection: "asc"
     },
     {
       field: "dateDebut",
@@ -248,6 +265,21 @@ const CongePage = () => {
               >
                 Retour
               </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ marginLeft: 2 }}
+
+                onClick={handleOpenModal}
+              >
+                Faire une demande de congé
+              </Button>
+
+
+
+
+
+
             </Box>
             <Box sx={{ marginBottom: 3 }}>
               <DataGrid
@@ -256,6 +288,12 @@ const CongePage = () => {
                 pageSize={5}
                 rowsPerPageOptions={[5]}
                 autoHeight
+                sortModel={[
+                  {
+                    field: "dateCreated",
+                    sort: "desc", // Default sort by 'dateCreated' in descending order (newest first)
+                  },
+                ]}
               />
             </Box>
             <Box

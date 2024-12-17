@@ -23,6 +23,8 @@ const UserPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openCreateUserDialog, setOpenCreateUserDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+
   const [newUser, setNewUser] = useState({
     userId: null,
     name: "",
@@ -31,6 +33,15 @@ const UserPage = () => {
     password: "",
     soldeConge: 0,
   });
+
+  const [editUser, setEditUser] = useState({
+    userId: null,
+    name: "",
+    posts: "",
+    email: "",
+    soldeConge: 0,
+  });
+
   const navigate = useNavigate();
 
   // Fetch user data
@@ -74,7 +85,49 @@ const UserPage = () => {
   // Handle input changes for creating a user
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewUser((prevUser) => ({ ...prevUser, [name]: name === "userId" || name === "soldeConge" ? parseInt(value, 10) || 0 : value, }));
+    setNewUser((prevUser) => ({
+      ...prevUser,
+      [name]:
+        name === "userId" || name === "soldeConge" ? parseInt(value, 10) || 0 : value,
+    }));
+  };
+
+  // Open Edit Dialog with user data
+  const handleEditClick = (user) => {
+    setEditUser({
+      userId: user.userId,
+      name: user.name,
+      posts: user.posts,
+      email: user.email,
+      soldeConge: user.soldeConge,
+    });
+    setOpenEditDialog(true);
+  };
+
+  // Handle Edit Input Change
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditUser((prevUser) => ({
+      ...prevUser,
+      [name]: name === "soldeConge" ? parseInt(value, 10) || 0 : value,
+    }));
+  };
+
+  // Update user details
+  const handleUpdateUser = () => {
+    axios
+      .patch(`http://localhost:3002/user/${editUser.userId}`, editUser)
+      .then((response) => {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.userId === editUser.userId ? { ...response.data } : user
+          )
+        );
+        setOpenEditDialog(false);
+      })
+      .catch((error) => {
+        console.error("Error updating user:", error);
+      });
   };
 
   // Define columns for the DataGrid
@@ -108,20 +161,22 @@ const UserPage = () => {
           >
             Voir Profil
           </Button>
+          <Button
+            variant="contained"
+            color="warning"
+            size="small"
+            onClick={() => handleEditClick(params.row)}
+          >
+            Modifier
+          </Button>
         </Stack>
       ),
     },
   ];
 
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    setDarkMode((prevMode) => !prevMode);
-  };
-
   return (
     <>
       <TopBar />
-
       <Paper
         style={{
           minHeight: "100vh",
@@ -149,8 +204,14 @@ const UserPage = () => {
             <Typography variant="h4" gutterBottom>
               Liste des agents
             </Typography>
-            <Box sx={{ display: "flex", justifyContent: "flex-start", marginBottom: 2 }}>
-              <Button variant="outlined" color="primary" onClick={() => navigate(-1)}>
+            <Box 
+            sx={{ display: "flex",
+               justifyContent: "flex-start",
+                marginBottom: 2 }}>
+              <Button 
+              variant="outlined" 
+              color="primary" 
+              onClick={() => navigate(-1)}>
                 Retour
               </Button>
               <Button
@@ -162,7 +223,13 @@ const UserPage = () => {
                 Créer un utilisateur
               </Button>
             </Box>
-            <DataGrid rows={users.map((user) => ({ ...user, id: user.userId }))} columns={columns} pageSize={5} rowsPerPageOptions={[5]} disableSelectionOnClick />
+            <DataGrid
+              rows={users.map((user) => ({ ...user, id: user.userId }))}
+              columns={columns}
+              pageSize={5}
+              rowsPerPageOptions={[5]}
+              disableSelectionOnClick
+            />
           </Box>
         )}
       </Paper>
@@ -171,64 +238,31 @@ const UserPage = () => {
       <Dialog open={openCreateUserDialog} onClose={() => setOpenCreateUserDialog(false)}>
         <DialogTitle>Créer un utilisateur</DialogTitle>
         <DialogContent>
-        <TextField
-            label="Matricule"
-            name="userId"
-            value={newUser.userId}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Nom & Prénom"
-            name="name"
-            value={newUser.name}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Poste"
-            name="posts"
-            value={newUser.posts}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Email"
-            name="email"
-            value={newUser.email}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Mot de passe"
-            name="password"
-            type="password"
-            value={newUser.password}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Solde Congé"
-            name="soldeConge"
-            value={newUser.soldeConge}
-            onChange={handleInputChange}
-            type="number"
-            fullWidth
-            margin="normal"
-          />
+          {/* New User Input Fields */}
+          <TextField label="Matricule" name="userId" value={newUser.userId} onChange={handleInputChange} fullWidth margin="normal" />
+          <TextField label="Nom & Prénom" name="name" value={newUser.name} onChange={handleInputChange} fullWidth margin="normal" />
+          <TextField label="Poste" name="posts" value={newUser.posts} onChange={handleInputChange} fullWidth margin="normal" />
+          <TextField label="Email" name="email" value={newUser.email} onChange={handleInputChange} fullWidth margin="normal" />
+          <TextField label="Solde Congé" name="soldeConge" type="number" value={newUser.soldeConge} onChange={handleInputChange} fullWidth margin="normal" />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenCreateUserDialog(false)} color="secondary">
-            Annuler
-          </Button>
-          <Button onClick={handleCreateUser} color="primary">
-            Créer
-          </Button>
+          <Button onClick={() => setOpenCreateUserDialog(false)} color="secondary">Annuler</Button>
+          <Button onClick={handleCreateUser} color="primary">Créer</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit User Dialog */}
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+        <DialogTitle>Modifier l'utilisateur</DialogTitle>
+        <DialogContent>
+          <TextField label="Nom & Prénom" name="name" value={editUser.name} onChange={handleEditInputChange} fullWidth margin="normal" />
+          <TextField label="Poste" name="posts" value={editUser.posts} onChange={handleEditInputChange} fullWidth margin="normal" />
+          <TextField label="Email" name="email" value={editUser.email} onChange={handleEditInputChange} fullWidth margin="normal" />
+          <TextField label="Solde Congé" name="soldeConge" type="number" value={editUser.soldeConge} onChange={handleEditInputChange} fullWidth margin="normal" />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditDialog(false)} color="secondary">Annuler</Button>
+          <Button onClick={handleUpdateUser} color="primary">Modifier</Button>
         </DialogActions>
       </Dialog>
     </>

@@ -3,7 +3,17 @@ import { Modal, TextField, Box, Typography, Button } from "@mui/material";
 
 
 const DemandeCongeModal = ({ open, onClose, newConge, setNewConge, handleSubmitConge }) => {
-    
+    const [dateError, setDateError] = useState(""); // To handle date error message
+  
+  const handleLeaveInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewConge((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  }; 
+  const minDate = new Date();
+
   return (
     <Modal
       open={open}
@@ -28,16 +38,20 @@ const DemandeCongeModal = ({ open, onClose, newConge, setNewConge, handleSubmitC
           Demande de Congé
         </Typography>
         <TextField
-          label="Date de début"
-          type="date"
-          fullWidth
-          value={newConge.dateDebut}
-          onChange={(e) =>
-            setNewConge({ ...newConge, dateDebut: e.target.value })
-          }
-          InputLabelProps={{ shrink: true }}
-          margin="normal"
-        />
+            label="Date de début"
+            type="date"
+            name="dateDebut"
+            value={newConge.dateDebut}
+            onChange={handleLeaveInputChange}
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+            inputProps={{
+              min: minDate.toISOString().split("T")[0], // Disable past dates and today
+            }}
+            error={!!dateError}
+            helperText={dateError}
+          />
         <TextField
           label="Nombre de Jours"
           type="number"

@@ -31,7 +31,9 @@ const AllCongePage = () => {
           ...conge,
           id: conge.id || index,
           userName: conge.User ? conge.User.name : "",
-          userId: conge.User ? conge.User.userId:"",
+          userId: conge.User ? conge.User.userId : "",
+          dateDebut: formatDateTime(conge.dateDebut), // Formatage ici
+          dateCreated: formatDateTime(conge.dateCreated), // Formatage ici
         }));
         setCongeData(dataWithId);
         setLoading(false);
@@ -43,51 +45,85 @@ const AllCongePage = () => {
   }, []);
 
   const columns = [
-    { field: "userId", headerName: "Matricule", width: 100 },
-    { field: "userName", headerName: "Nom & Prénom", width: 200 },
-    { field: "nbreJour", headerName: "Nombre de Jours", width: 150 },
-    { field: "dateDebut", headerName: "Date de Début", width: 200 },
     {
-          field: "etatConge",
-          headerName: "État",
-          align: "center",
-          headerAlign: "center",
-          width: 110,
-          renderCell: (params) => {
-            const etat = params.value;
-            let color;
-            let backgroundColor = "";
-            let textColor = "#fff"; // Default text color for better contrast
-            if (etat === "Accepté") backgroundColor = "#94C973";
-            if (etat === "Refusé") backgroundColor = "red";
-            if (etat === "En Attente") {
-              backgroundColor = "blue";
-            }
-    
-            return (
-              <Box
-                sx={{
-                  backgroundColor, // Dynamic background color
-                 color: "#fff", // White text for better contrast
-                  // padding: "6px 8px", // Padding around the text
-                  // borderRadius: "4px", // Rounded corners
-                  textAlign: "center", // Center the text
-                  verticalAlign: "center",
-                  width: "100px", // Fixed width for consistency
-                  fontWeight: "bold", // Bold text
-                }}
-              >
-                {etat}
-              </Box>
-            );
-          },
-        },
-    { field: "dateCreated", headerName: "Date Créée", width: 200 },
-    { field: "adressConge", headerName: "Adresse", width: 200 },
+      field: "userId",
+      headerName: "Matricule",
+      width: 80,
+      headerAlign: "center",
+      align: "center",
+    },
+    {
+      field: "userName",
+      headerName: "Nom & Prénom",
+      width: 200,
+      headerAlign: "center",
+      align: "center",
+    },
+    {
+      field: "nbreJour",
+      headerName: "Nombre de Jours",
+      width: 120,
+      headerAlign: "center",
+      align: "center",
+    },
+    {
+      field: "dateDebut",
+      headerName: "Date de Début",
+      width: 200,
+      headerAlign: "center",
+      align: "center",
+    },
+
+    {
+      field: "dateCreated",
+      headerName: "Date Création",
+      width: 180,
+      sortable: "true",
+      sort: "desc",
+      headerAlign: "center",
+      align: "center",
+    },
+    // { field: "adressConge", headerName: "Adresse", width: 200, headerAlign:"center",align:"center" },
+    {
+      field: "etatConge",
+      headerName: "État",
+      align: "center",
+      headerAlign: "center",
+      width: 110,
+      renderCell: (params) => {
+        const etat = params.value;
+        let color;
+        let backgroundColor = "";
+        let textColor = "#fff"; // Default text color for better contrast
+        if (etat === "Accepté") backgroundColor = "#94C973";
+        if (etat === "Refusé") backgroundColor = "red";
+        if (etat === "En Attente") backgroundColor = "blue";
+        
+
+        return (
+          <Box
+            sx={{
+              backgroundColor, // Dynamic background color
+              color: "#fff", // White text for better contrast
+              // padding: "6px 8px", // Padding around the text
+              borderRadius: "4px", // Rounded corners
+              textAlign: "center", // Center the text
+
+              width: "100px", // Fixed width for consistency
+              fontWeight: "bold", // Bold text
+            }}
+          >
+            {etat}
+          </Box>
+        );
+      },
+    },
     {
       field: "actions",
       headerName: "Actions",
-      width: 300,
+      headerAlign: "center",
+      flex:1,
+      width: 200,
       renderCell: (params) => (
         <Box
           sx={{
@@ -148,6 +184,19 @@ const AllCongePage = () => {
   const handleBackClick = () => {
     navigate(-1); // Go back to the previous page
   };
+  const formatDateTime = (isoString) => {
+    const date = new Date(isoString);
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Mois commence à 0
+    const year = date.getFullYear();
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+  };
 
   return (
     <>
@@ -159,8 +208,8 @@ const AllCongePage = () => {
           flexDirection: "column",
           justifyContent: "space-between",
         }}
-        elevation={0}
-        square
+        // elevation={0}
+        // square
         sx={{
           backgroundColor: darkMode ? "grey.900" : "grey.100",
           color: darkMode ? "grey.300" : "grey.900",
@@ -207,6 +256,7 @@ const AllCongePage = () => {
               pageSize={5}
               rowsPerPageOptions={[10]}
               disableSelectionOnClick
+              checkboxSelection={false}
               sx={{
                 boxShadow: "0 3px 6px rgba(0,0,0,0.1)",
                 borderRadius: "10px",
