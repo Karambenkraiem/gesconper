@@ -60,6 +60,15 @@ const AllCongePage = () => {
       align: "center",
     },
     {
+      field: "dateCreated",
+      headerName: "Date Création",
+      width: 180,
+      sortable: "true",
+      sort: "desc",
+      headerAlign: "center",
+      align: "center",
+    },
+    {
       field: "nbreJour",
       headerName: "Nombre de Jours",
       width: 120,
@@ -74,15 +83,6 @@ const AllCongePage = () => {
       align: "center",
     },
 
-    {
-      field: "dateCreated",
-      headerName: "Date Création",
-      width: 180,
-      sortable: "true",
-      sort: "desc",
-      headerAlign: "center",
-      align: "center",
-    },
     // { field: "adressConge", headerName: "Adresse", width: 200, headerAlign:"center",align:"center" },
     {
       field: "etatConge",

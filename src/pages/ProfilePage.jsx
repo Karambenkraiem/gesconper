@@ -358,7 +358,7 @@ const Profile = () => {
             fullWidth
             margin="normal"
           />
-          <TextField
+          {/* <TextField
             label="Solde Congé"
             name="soldeConge"
             type="number"
@@ -366,7 +366,7 @@ const Profile = () => {
             onChange={handleEditInputChange}
             fullWidth
             margin="normal"
-          />
+          /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)} color="secondary">

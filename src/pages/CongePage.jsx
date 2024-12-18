@@ -59,11 +59,11 @@ const CongePage = () => {
   }, [userId]);
 
   // Update EtatConge action
+
   const handleUpdateEtat = (congeId, etat) => {
     axios
       .patch(`http://localhost:3002/conges/${congeId}`, { etatConge: etat })
       .then(() => {
-        // Update state locally
         setConges((prevConges) =>
           prevConges.map((conge) =>
             conge.id === congeId ? { ...conge, etatConge: etat } : conge
@@ -74,6 +74,27 @@ const CongePage = () => {
         console.error("Error updating congé état!", error);
       });
   };
+  
+
+
+
+
+
+  // const handleUpdateEtat = (congeId, etat) => {
+  //   axios
+  //     .patch(`http://localhost:3002/conges/${congeId}`, { etatConge: etat })
+  //     .then(() => {
+  //       // Update state locally
+  //       setConges((prevConges) =>
+  //         prevConges.map((conge) =>
+  //           conge.id === congeId ? { ...conge, etatConge: etat } : conge
+  //         )
+  //       );
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error updating congé état!", error);
+  //     });
+  // };
 
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
