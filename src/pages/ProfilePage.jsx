@@ -28,12 +28,60 @@ const Profile = () => {
   const [error, setError] = useState(null); // Error state
   const [openLeaveDialog, setOpenLeaveDialog] = useState(false); // State for leave request dialog
   const [conges, setConges] = useState([]);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+
   const [newConge, setNewConge] = useState({
     nbreJour: 1,
     dateDebut: "",
     adressConge: "123 Holiday Lane",
     etatConge: "En Attente",
   });
+
+
+  const [editUser, setEditUser] = useState({
+    userId: null,
+    name: "",
+    role: "user",
+    posts:"",
+    email: "",
+    soldeConge: 0,
+  });
+
+
+  const handleEditClick = (user) => {
+    setEditUser({
+      userId: user.userId,
+      name: user.name,
+      role: user.role,
+      posts: user.posts,
+      email: user.email,
+      soldeConge: user.soldeConge,
+    });
+    setOpenEditDialog(true);
+  };
+
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditUser((prevUser) => ({
+      ...prevUser,
+      [name]: name === "soldeConge" ? parseInt(value, 10) || 0 : value,
+    }));
+  };
+  const handleUpdateUser = () => {
+    axios
+      .patch(`http://localhost:3002/user/${editUser.userId}`, editUser)
+      .then((response) => {
+        setUser(response.data);        
+        setOpenEditDialog(false);
+        alert("Modification des données avec succes.");
+      })
+      .catch((error) => {
+        console.error("Error updating user:", error);
+        alert(" Modification interdite par le systeme !!")
+      });
+
+  };
 
   const [dateError, setDateError] = useState(""); // To handle date error message
 
@@ -111,6 +159,7 @@ const Profile = () => {
       .catch((error) => {
         console.error("Error submitting conge:", error);
       });
+      
   };
 
   if (loading) {
@@ -198,6 +247,15 @@ const Profile = () => {
                 <CardActions sx={{ width: "100%", justifyContent: "center" }}>
                   <Button
                     variant="contained"
+                    color="warning"
+                    size="small"
+                    onClick={() => handleEditClick(user)}
+                  >
+                    Modifier
+                  </Button>
+
+                  <Button
+                    variant="contained"
                     color="primary"
                     onClick={handleOpenLeaveDialog}
                     sx={{ width: "50%" }}
@@ -269,6 +327,53 @@ const Profile = () => {
           </Button>
           <Button onClick={handleSubmitConge} color="primary">
             Soumettre
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* Edit User Dialog */}
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+        <DialogTitle>Modifier l'utilisateur</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Nom & Prénom"
+            name="name"
+            value={editUser.name}
+            onChange={handleEditInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Poste"
+            name="posts"
+            value={editUser.posts}
+            onChange={handleEditInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Email"
+            name="email"
+            value={editUser.email}
+            onChange={handleEditInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Solde Congé"
+            name="soldeConge"
+            type="number"
+            value={editUser.soldeConge}
+            onChange={handleEditInputChange}
+            fullWidth
+            margin="normal"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditDialog(false)} color="secondary">
+            Annuler
+          </Button>
+          <Button onClick={handleUpdateUser} color="primary">
+            Modifier
           </Button>
         </DialogActions>
       </Dialog>

@@ -12,6 +12,9 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  InputLabel,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -31,12 +34,13 @@ const UserPage = () => {
     posts: "",
     email: "",
     password: "",
+    role: "",
     soldeConge: 0,
   });
 
   const [editUser, setEditUser] = useState({
-    userId: null,
     name: "",
+    role: "",
     posts: "",
     email: "",
     soldeConge: 0,
@@ -88,14 +92,17 @@ const UserPage = () => {
     setNewUser((prevUser) => ({
       ...prevUser,
       [name]:
-        name === "userId" || name === "soldeConge" ? parseInt(value, 10) || 0 : value,
+        name === "userId" || name === "soldeConge"
+          ? parseInt(value, 10) || 0
+          : value,
     }));
   };
 
   // Open Edit Dialog with user data
   const handleEditClick = (user) => {
     setEditUser({
-      userId: user.userId,
+      userId:user.userId,
+      role: user.role,
       name: user.name,
       posts: user.posts,
       email: user.email,
@@ -109,7 +116,10 @@ const UserPage = () => {
     const { name, value } = e.target;
     setEditUser((prevUser) => ({
       ...prevUser,
-      [name]: name === "soldeConge" ? parseInt(value, 10) || 0 : value,
+      // [name]: name === "soldeConge" ? parseInt(value, 10) || 0 : value,
+      [name]:
+      name === "soldeConge" || name === "userId" ? parseInt(value, 10) || 0 : value,
+
     }));
   };
 
@@ -137,6 +147,7 @@ const UserPage = () => {
     { field: "posts", headerName: "Poste", width: 200 },
     { field: "email", headerName: "Email", width: 200 },
     { field: "soldeConge", headerName: "Solde Congé", width: 150 },
+    { field: "role", headerName: "role", width: 150 },
     {
       field: "actions",
       headerName: "Actions",
@@ -144,7 +155,17 @@ const UserPage = () => {
       align: "center",
       headerAlign: "center",
       renderCell: (params) => (
-        <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
+        <Stack
+          direction="row"
+          spacing={2}
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            width: '100%', // Ensure the container spans the available space
+            height: '100%', // Adjust height as necessary to ensure proper vertical centering
+            display: 'flex', // Explicitly set flexbox behavior
+          }}
+        >
           <Button
             variant="contained"
             color="primary"
@@ -180,9 +201,12 @@ const UserPage = () => {
       <Paper
         style={{
           minHeight: "100vh",
+          width:"100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          overflowX: "hidden", // Prevents horizontal overflow
+
         }}
         elevation={0}
         square
@@ -192,7 +216,12 @@ const UserPage = () => {
         }}
       >
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" height={300}>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height={300}
+          >
             <CircularProgress />
           </Box>
         ) : error ? (
@@ -200,18 +229,28 @@ const UserPage = () => {
             <Typography variant="h6">{error}</Typography>
           </Box>
         ) : (
-          <Box sx={{ width: "100%", borderRadius: 5, padding: 2 }}>
+          <Box ssx={{
+            width: "calc(100% - 100px)", // Slightly smaller than the Paper to create a margin
+            margin: "0 auto", // Center the DataGrid horizontally
+            overflowX: "auto", // Prevent horizontal overflow
+            padding: 2, // Add some padding around the grid
+            boxSizing: "border-box", // Ensure padding is included in the total width
+          }}>
             <Typography variant="h4" gutterBottom>
               Liste des agents
             </Typography>
-            <Box 
-            sx={{ display: "flex",
-               justifyContent: "flex-start",
-                marginBottom: 2 }}>
-              <Button 
-              variant="outlined" 
-              color="primary" 
-              onClick={() => navigate(-1)}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                marginBottom: 2,
+              }}
+            >
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => navigate(-1)}
+              >
                 Retour
               </Button>
               <Button
@@ -235,19 +274,84 @@ const UserPage = () => {
       </Paper>
 
       {/* Create User Dialog */}
-      <Dialog open={openCreateUserDialog} onClose={() => setOpenCreateUserDialog(false)}>
+      <Dialog
+        open={openCreateUserDialog}
+        onClose={() => setOpenCreateUserDialog(false)}
+      >
         <DialogTitle>Créer un utilisateur</DialogTitle>
         <DialogContent>
           {/* New User Input Fields */}
-          <TextField label="Matricule" name="userId" value={newUser.userId} onChange={handleInputChange} fullWidth margin="normal" />
-          <TextField label="Nom & Prénom" name="name" value={newUser.name} onChange={handleInputChange} fullWidth margin="normal" />
-          <TextField label="Poste" name="posts" value={newUser.posts} onChange={handleInputChange} fullWidth margin="normal" />
-          <TextField label="Email" name="email" value={newUser.email} onChange={handleInputChange} fullWidth margin="normal" />
-          <TextField label="Solde Congé" name="soldeConge" type="number" value={newUser.soldeConge} onChange={handleInputChange} fullWidth margin="normal" />
+          <TextField
+            label="Matricule"
+            name="userId"
+            value={newUser.userId}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Nom & Prénom"
+            name="name"
+            value={newUser.name}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
+          
+
+          <InputLabel id="role-label" >Role</InputLabel>
+          <Select
+            labelId="role-label"
+            id="role"
+            name="role"
+            fullWidth
+            value={newUser.role}
+            onChange={handleInputChange}
+            label="Role"
+          >
+            <MenuItem value="admin">Admin</MenuItem>
+            <MenuItem value="agent">Agent</MenuItem>
+            <MenuItem value="chef Service">Chef Service</MenuItem>
+            <MenuItem value="Directeur">Directeur</MenuItem>
+          </Select>
+
+
+          <TextField
+            label="Poste"
+            name="posts"
+            value={newUser.posts}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Email"
+            name="email"
+            value={newUser.email}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Solde Congé"
+            name="soldeConge"
+            type="number"
+            value={newUser.soldeConge}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenCreateUserDialog(false)} color="secondary">Annuler</Button>
-          <Button onClick={handleCreateUser} color="primary">Créer</Button>
+          <Button
+            onClick={() => setOpenCreateUserDialog(false)}
+            color="secondary"
+          >
+            Annuler
+          </Button>
+          <Button onClick={handleCreateUser} color="primary">
+            Créer
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -255,14 +359,64 @@ const UserPage = () => {
       <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
         <DialogTitle>Modifier l'utilisateur</DialogTitle>
         <DialogContent>
-          <TextField label="Nom & Prénom" name="name" value={editUser.name} onChange={handleEditInputChange} fullWidth margin="normal" />
-          <TextField label="Poste" name="posts" value={editUser.posts} onChange={handleEditInputChange} fullWidth margin="normal" />
-          <TextField label="Email" name="email" value={editUser.email} onChange={handleEditInputChange} fullWidth margin="normal" />
-          <TextField label="Solde Congé" name="soldeConge" type="number" value={editUser.soldeConge} onChange={handleEditInputChange} fullWidth margin="normal" />
+        
+          <TextField
+            label="Nom & Prénom"
+            name="name"
+            value={editUser.name}
+            onChange={handleEditInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <InputLabel id="role-label" >Role</InputLabel>
+          <Select
+            labelId="role-label"
+            id="role"
+            name="role"
+            fullWidth
+            value={editUser.role}
+            onChange={handleEditInputChange}
+            label="Role"
+          >
+            <MenuItem value="admin">Admin</MenuItem>
+            <MenuItem value="agent">Agent</MenuItem>
+            <MenuItem value="chef Service">Chef Service</MenuItem>
+            <MenuItem value="Directeur">Directeur</MenuItem>
+          </Select>
+          {/* <TextField label="Role" name="role" value={editUser.role} onChange={handleEditInputChange} fullWidth margin="normal" /> */}
+          <TextField
+            label="Poste"
+            name="posts"
+            value={editUser.posts}
+            onChange={handleEditInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Email"
+            name="email"
+            value={editUser.email}
+            onChange={handleEditInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Solde Congé"
+            name="soldeConge"
+            type="number"
+            value={editUser.soldeConge}
+            onChange={handleEditInputChange}
+            fullWidth
+            margin="normal"
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenEditDialog(false)} color="secondary">Annuler</Button>
-          <Button onClick={handleUpdateUser} color="primary">Modifier</Button>
+          <Button onClick={() => setOpenEditDialog(false)} color="secondary">
+            Annuler
+          </Button>
+          <Button onClick={handleUpdateUser} color="primary">
+            Modifier
+          </Button>
         </DialogActions>
       </Dialog>
     </>

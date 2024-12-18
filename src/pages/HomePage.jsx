@@ -45,18 +45,24 @@ const HomePage = () => {
 
   return (
     <Paper
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-      }}
-      elevation={0}
-      square
-      sx={{
-        backgroundColor: darkMode ? "grey.900" : "grey.100",
-        color: darkMode ? "grey.300" : "grey.900",
-      }}
+    style={{
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      // backgroundImage: `url('/logo_steg.png')`, // Path to the image in the public folder
+      // backgroundSize: "contain", // Makes sure the image covers the entire page
+      // backgroundPosition: "center", // Centers the image
+      // backgroundRepeat: "no-repeat", // Prevents the image from repeating
+
+    }}
+    elevation={0}
+    square
+    sx={{
+
+      backgroundColor: darkMode ? "grey.900" : "grey.100",
+      color: darkMode ? "grey.300" : "grey.900",
+    }}
     >
       {/* Navigation Bar */}
       <AppBar
@@ -108,6 +114,8 @@ const HomePage = () => {
       <Container
         maxWidth="md"
         sx={{
+          // backgroundColor: "rgba(0, 0, 0, 0.5)", // 50% opacity black overlay
+
           flexGrow: 1,
           display: "flex",
           justifyContent: "center",

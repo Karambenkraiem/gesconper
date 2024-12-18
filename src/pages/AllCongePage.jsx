@@ -226,10 +226,13 @@ const AllCongePage = () => {
           </Box>
         ) : (
           <Box
-            sx={{
-              width: "100%",
-              padding: 2,
-            }}
+          ssx={{
+            width: "calc(100% - 100px)", // Slightly smaller than the Paper to create a margin
+            margin: "0 auto", // Center the DataGrid horizontally
+            overflowX: "auto", // Prevent horizontal overflow
+            padding: 2, // Add some padding around the grid
+            boxSizing: "border-box", // Ensure padding is included in the total width
+          }}
           >
             <Typography variant="h4" gutterBottom>
               Liste des congés
