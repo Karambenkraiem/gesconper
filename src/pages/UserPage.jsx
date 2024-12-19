@@ -19,6 +19,7 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import TopBar from "../components/TopBar";
+import { ipnet } from "../constants/ip";
 
 const UserPage = () => {
   const [users, setUsers] = useState([]);
@@ -51,7 +52,8 @@ const UserPage = () => {
   // Fetch user data
   useEffect(() => {
     axios
-      .get("http://localhost:3002/user")
+      // .get("http://localhost:3002/user")
+      .get(ipnet + "/user")
       .then((response) => {
         setUsers(response.data);
         setLoading(false);
