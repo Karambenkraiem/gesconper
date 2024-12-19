@@ -5,6 +5,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import DemandeCongeModal from "../Modal/DemandeCongeModal";
+import { ip } from "../constants/ip";
 
 const CongePage = () => {
   const { userId } = useParams(); // Get the userId from the URL
@@ -37,7 +38,7 @@ const CongePage = () => {
   // Fetch congés data
   useEffect(() => {
     axios
-      .get(`http://localhost:3002/user/${userId}/conges`)
+      .get(ip + `/user/${userId}/conges`)
       .then((response) => {
         if (response.data.length > 0 && response.data[0].User) {
           setUserName(response.data[0].User.name);
@@ -62,7 +63,7 @@ const CongePage = () => {
 
   const handleUpdateEtat = (congeId, etat) => {
     axios
-      .patch(`http://localhost:3002/conges/${congeId}`, { etatConge: etat })
+      .patch(ip + `/conges/${congeId}`, { etatConge: etat })
       .then(() => {
         setConges((prevConges) =>
           prevConges.map((conge) =>

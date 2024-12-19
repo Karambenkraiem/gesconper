@@ -19,7 +19,7 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import TopBar from "../components/TopBar";
-import { ipnet } from "../constants/ip";
+import { ip, ipnet } from "../constants/ip";
 
 const UserPage = () => {
   const [users, setUsers] = useState([]);
@@ -52,8 +52,8 @@ const UserPage = () => {
   // Fetch user data
   useEffect(() => {
     axios
-      // .get("http://localhost:3002/user")
-      .get(ipnet + "/user")
+      .get(ip + "/user")
+      // .get(ipnet + "/user")
       .then((response) => {
         setUsers(response.data);
         setLoading(false);
@@ -78,7 +78,7 @@ const UserPage = () => {
   // Handle user creation
   const handleCreateUser = () => {
     axios
-      .post("http://localhost:3002/user", newUser)
+      .post(ip +"/user", newUser)
       .then((response) => {
         setUsers([...users, response.data]);
         setOpenCreateUserDialog(false);
@@ -128,7 +128,7 @@ const UserPage = () => {
   // Update user details
   const handleUpdateUser = () => {
     axios
-      .patch(`http://localhost:3002/user/${editUser.userId}`, editUser)
+      .patch(ip + `/user/${editUser.userId}`, editUser)
       .then((response) => {
         setUsers((prevUsers) =>
           prevUsers.map((user) =>

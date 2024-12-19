@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import TopBar from "../components/TopBar";
+import { ip } from "../constants/ip";
 
 const AllCongePage = () => {
   const [congeData, setCongeData] = useState([]);
@@ -25,7 +26,7 @@ const AllCongePage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3002/conges")
+      .get(ip+"/conges")
       .then((response) => {
         const dataWithId = response.data.map((conge, index) => ({
           ...conge,
@@ -167,7 +168,7 @@ const AllCongePage = () => {
   // Update EtatConge action
   const handleUpdateEtat = (congeId, etat) => {
     axios
-      .patch(`http://localhost:3002/conges/${congeId}`, { etatConge: etat })
+      .patch(ip + `/conges/${congeId}`, { etatConge: etat })
       .then(() => {
         // Update state locally
         setCongeData((prevCongeData) =>

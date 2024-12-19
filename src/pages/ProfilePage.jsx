@@ -20,6 +20,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import TopBar from "../components/TopBar";
+import { ip } from "../constants/ip";
 
 const Profile = () => {
   const { userId } = useParams(); // Get userId from route params
@@ -70,7 +71,7 @@ const Profile = () => {
   };
   const handleUpdateUser = () => {
     axios
-      .patch(`http://localhost:3002/user/${editUser.userId}`, editUser)
+      .patch(ip + `/user/${editUser.userId}`, editUser)
       .then((response) => {
         setUser(response.data);        
         setOpenEditDialog(false);
@@ -99,7 +100,7 @@ const Profile = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3002/user/${userId}`
+          ip + `/user/${userId}`
         );
         setUser(response.data);
         setLoading(false);
@@ -148,7 +149,7 @@ const Profile = () => {
     const congeData = { ...newConge, userUserId: parseInt(userId, 10) };
 
     axios
-      .post(`http://localhost:3002/conges`, congeData)
+      .post(ip+`/conges`, congeData)
       .then((response) => {
         setConges([...conges, response.data]);
         handleCloseLeaveDialog();
