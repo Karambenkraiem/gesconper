@@ -11,14 +11,31 @@ import {
 } from "@mui/material";
 import { Brightness4, Brightness7, PeopleAltRounded } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import HomeIcon from "@mui/icons-material/Home"; // Import the Home icon
-import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
-import InventoryRoundedIcon from '@mui/icons-material/InventoryRounded';
+import HomeIcon from "@mui/icons-material/Home";
+import InventoryRoundedIcon from "@mui/icons-material/InventoryRounded";
+import { jwtDecode } from "jwt-decode"; // Correctly import jwtDecode
 
 const HomePage = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [userName, setUserName] = useState("--"); // Placeholder for user's name
   const navigate = useNavigate();
+
+  // Fetch user name from token
+  useEffect(() => {
+    const token = localStorage.getItem("token"); // Récupération du jeton
+    if (token) {
+      try {
+        const decoded = jwtDecode(token); // Décodage du token
+        console.log("Token décodé :", decoded); // Vérifiez le contenu
+        if (decoded?.name) {
+          setUserName(decoded.name); // Mise à jour du nom d'utilisateur
+        }
+      } catch (err) {
+        console.error("Erreur lors du décodage du token :", err);
+      }
+    }
+  }, []);
 
   // Update the time every second
   useEffect(() => {
@@ -33,36 +50,33 @@ const HomePage = () => {
   const toggleDarkMode = () => {
     setDarkMode((prevMode) => !prevMode);
   };
+
   const handleHomeClick = () => {
-    navigate("/"); 
+    navigate("/");
   };
+
   const handleUserClick = () => {
-    navigate("/user"); 
+    navigate("/user");
   };
+
   const handleCongeClick = () => {
-    navigate("/allconge"); 
-  }; 
+    navigate("/allconge");
+  };
 
   return (
     <Paper
-    style={{
-      minHeight: "100vh",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      // backgroundImage: `url('/logo_steg.png')`, // Path to the image in the public folder
-      // backgroundSize: "contain", // Makes sure the image covers the entire page
-      // backgroundPosition: "center", // Centers the image
-      // backgroundRepeat: "no-repeat", // Prevents the image from repeating
-
-    }}
-    elevation={0}
-    square
-    sx={{
-
-      backgroundColor: darkMode ? "grey.900" : "grey.100",
-      color: darkMode ? "grey.300" : "grey.900",
-    }}
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+      elevation={0}
+      square
+      sx={{
+        backgroundColor: darkMode ? "grey.900" : "grey.100",
+        color: darkMode ? "grey.300" : "grey.900",
+      }}
     >
       {/* Navigation Bar */}
       <AppBar
@@ -70,37 +84,30 @@ const HomePage = () => {
         sx={{ bgcolor: darkMode ? "grey.800" : "primary.main" }}
       >
         <Toolbar>
-        <IconButton
-          color="inherit"
-          onClick={handleHomeClick}
-          edge="start"
-          sx={{ mr: 2 }}
-        >
-          <HomeIcon />
-        </IconButton>
-        <IconButton
-          color="inherit"
-          onClick={handleUserClick}
-          edge="start"
-          sx={{ mr: 2 }}
-        >
-          <PeopleAltRounded />
-        </IconButton>
-        <IconButton
-          color="inherit"
-          onClick={handleCongeClick}
-          edge="start"
-          sx={{ mr: 2 }}
-        >
-          <InventoryRoundedIcon />
-        </IconButton>
-
-
-
-
-
-
-
+          <IconButton
+            color="inherit"
+            onClick={handleHomeClick}
+            edge="start"
+            sx={{ mr: 2 }}
+          >
+            <HomeIcon />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={handleUserClick}
+            edge="start"
+            sx={{ mr: 2 }}
+          >
+            <PeopleAltRounded />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={handleCongeClick}
+            edge="start"
+            sx={{ mr: 2 }}
+          >
+            <InventoryRoundedIcon />
+          </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Gestion des congés des agents Exploitation
           </Typography>
@@ -114,8 +121,6 @@ const HomePage = () => {
       <Container
         maxWidth="md"
         sx={{
-          // backgroundColor: "rgba(0, 0, 0, 0.5)", // 50% opacity black overlay
-
           flexGrow: 1,
           display: "flex",
           justifyContent: "center",
@@ -137,7 +142,7 @@ const HomePage = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => navigate("/user")}
+          onClick={handleUserClick}
           sx={{
             width: "200px",
             height: "60px",
@@ -158,7 +163,7 @@ const HomePage = () => {
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => navigate("/allconge")}
+          onClick={handleCongeClick}
           sx={{
             width: "200px",
             height: "60px",
@@ -176,17 +181,15 @@ const HomePage = () => {
           Les congés
         </Button>
         <Typography variant="h2" sx={{ fontWeight: "bold", mb: 2 }}>
-          Chef division:
-        </Typography>
+L'agent:        </Typography>
         <Typography variant="h3" sx={{ fontWeight: "light", mb: 4 }}>
-          Ali BEN MANSOUR
+          {userName} {/* Display the connected user's name */}
         </Typography>
       </Container>
 
       {/* Footer */}
       <Box
         sx={{
-          flex:1,
           textAlign: "center",
           p: 2,
           bgcolor: darkMode ? "grey.800" : "grey.200",

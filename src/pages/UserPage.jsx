@@ -34,7 +34,7 @@ const UserPage = () => {
     name: "",
     posts: "",
     email: "",
-    password: "",
+    password: "1234567",
     role: "",
     soldeConge: 0,
   });
